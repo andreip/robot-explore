@@ -27,8 +27,11 @@ public class Robot {
 		while (!moves.isEmpty()) {
 			Coord pos = moves.pop();
 
+			printMap();
+
 			/* Check what we can observe from the current position (smell). */
 			if (smellSwamp(pos)) {
+				this.map.setType(pos, Grid.FREE);
 				/* Try and deduce where the swamp is. We can do this only if
 				 * we know all the spots except the one with swamp.
 				 */
@@ -54,6 +57,11 @@ public class Robot {
 		}
 
 		return map;
+	}
+
+	private void printMap() {
+		System.out.println(this.map);
+		System.out.println("");
 	}
 
 	private boolean smellSwamp(Coord pos) {

@@ -90,6 +90,16 @@ public class Grid {
 		return new Coord(c.x, c.y + 1);
 	}
 
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < height; ++i) {
+			for (int j = 0; j < width; ++j)
+				sb.append(grid[i][j] + " ");
+			sb.append('\n');
+		}
+		return sb.toString();
+	}
+
 	/* Returns a list of all possible moves on the map from
 	 * current position.
 	 */

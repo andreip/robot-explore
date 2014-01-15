@@ -17,8 +17,13 @@ public class Main {
 			int width = sc.nextInt();
 			sc.nextLine();
 			char[][] grid = new char[height][width];
-			for (int i = 0; i < height; ++i)
-				grid[i] = sc.nextLine().toCharArray();
+			for (int i = 0; i < height; ++i) {
+				String[] line = sc.nextLine().split(" ");
+				for (int j = 0; j < width; ++j) {
+					grid[i][j] = line[j].charAt(0);
+				}
+			}
+
 			Grid g = new Grid(height, width, grid);
 			Grid explored = new Robot(g).explore();
 		} catch (Exception e) {
