@@ -56,3 +56,10 @@ insa poate, pentru ca a fost descoperita S (mlastina) pe alta cale, din pozitia 
 prin eliminare, pentru ca simtea miros insa pozitia (0, 4) era cunoscuta ca nefiind
 mlastina.
 
+== Rulare ==
+
+Am adaugat un fisier build.xml unde este setat fisierul maps/simple la intrare. Se poate
+modifica in maps/simple2.
+
+$ ant run
+
