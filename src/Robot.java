@@ -19,10 +19,7 @@ public class Robot {
 		Coord startPos = this.crtPos;
 
 		/* Set current position as explored and safe. */
-		this.map.setType(this.crtPos, Grid.FREE);
-
-		System.out.println(crtPos);
-		printMap();
+		setTypeAndPrintMap(this.map, this.crtPos, Grid.FREE);
 
 		boolean mapChanged = true;
 		while (mapChanged) {
@@ -89,6 +86,10 @@ public class Robot {
 
 	/* Set type only if it's not already set and print map. */
 	private boolean setTypeAndPrintMap(Grid g, Coord pos, char type) {
+		/* Set the new type only if the old type is unknown. */
+		if (!g.isUnknown(pos))
+			return false;
+
 		if (g.getType(pos) == type)
 			return false;
 		g.setType(pos, type);
