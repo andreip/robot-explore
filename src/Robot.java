@@ -26,7 +26,6 @@ public class Robot {
 			/* Set the starting position and do DFS exploration. */
 			this.crtPos = startPos;
 			mapChanged = do_explore();
-			System.err.println(mapChanged);
 		}
 
 		return map;
@@ -59,9 +58,11 @@ public class Robot {
 			/* If we could not move to the new not-visited position,
 			 * this means that one is a wall.
 			 */
-			if (!this.updateCurrentPos(pos))
+			if (!this.updateCurrentPos(pos)) {
 				mapChanged |= setTypeAndPrintMap(this.map, pos, Grid.WALL);
-			else
+				/* Cannot add neightbors w/ the position is a wall. */
+				continue;
+			} else
 				mapChanged |= setTypeAndPrintMap(this.map, pos, Grid.FREE);
 
 			/* If pos is not labeled as discovered we will go on and search
@@ -123,19 +124,19 @@ public class Robot {
 	private void detectSwamp(Coord pos) {
 		List<Coord> moves = this.grid.getAllMoves(pos);
 
-		int unknown = moves.size();
-		Coord unknownCoord = null;
+		int swampPossibilities = 0;
+		Coord swampCoord = null;
 		for (Coord c : moves)
-			if (this.map.isUnknown(c))
-				unknownCoord = c;
-			else
-				unknown--;
+			if (this.map.isUnknown(c) || this.map.isSwamp(c)) {
+				swampPossibilities++;
+				swampCoord = c;
+			}
 
 		/* If we've know all but one coord we can deduce that that
 		 * one is a swamp, because we can feel the smell of a swamp
 		 * near this position.
 		 */
-		if (unknown == 1)
-			setTypeAndPrintMap(this.map, unknownCoord, Grid.SWAMP);
+		if (swampPossibilities == 1)
+			setTypeAndPrintMap(this.map, swampCoord, Grid.SWAMP);
 	}
 }
