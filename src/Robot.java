@@ -45,16 +45,6 @@ public class Robot {
 		while (!moves.isEmpty()) {
 			Coord pos = moves.pop();
 
-			/* Check what we can observe from the current position (smell). */
-			if (smellSwamp(pos)) {
-				mapChanged |= setTypeAndPrintMap(this.map, pos, Grid.FREE);
-				/* Try and deduce where the swamp is. We can do this only if
-				 * we know all the spots except the one with swamp.
-				 */
-				detectSwamp(pos);
-				continue;
-			}
-
 			/* If we could not move to the new not-visited position,
 			 * this means that one is a wall.
 			 */
@@ -64,6 +54,16 @@ public class Robot {
 				continue;
 			} else
 				mapChanged |= setTypeAndPrintMap(this.map, pos, Grid.FREE);
+
+
+			/* Check what we can observe from the current position (smell). */
+			if (smellSwamp(pos)) {
+				/* Try and deduce where the swamp is. We can do this only if
+				 * we know all the spots except the one with swamp.
+				 */
+				detectSwamp(pos);
+				continue;
+			}
 
 			/* If pos is not labeled as discovered we will go on and search
 			 * for his children too.
