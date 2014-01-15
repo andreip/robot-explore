@@ -57,12 +57,17 @@ public class Robot {
 
 
 			/* Check what we can observe from the current position (smell). */
-			if (smellSwamp(pos)) {
+			if (smellSwamps(pos) > 0) {
 				/* Try and deduce where the swamp is. We can do this only if
 				 * we know all the spots except the one with swamp.
 				 */
-				detectSwamp(pos);
-				continue;
+				boolean canMove = checkSwamps(pos);
+				/* If the detectSwamp function tells us we have not identified
+				 * all the swamps, then we cannot choose any neighbors, so we'll
+				 * leave this position.
+				 */
+				if (!canMove)
+					continue;
 			}
 
 			/* If pos is not labeled as discovered we will go on and search
@@ -73,7 +78,7 @@ public class Robot {
 			List<Coord> nextMoves = this.grid.getAllMoves(pos);
 			for (Coord c : nextMoves) {
 				/* Don't re-add visited positions. */
-				if (visited[c.x][c.y])
+				if (visited[c.x][c.y] && !this.map.isSwamp(c))
 					continue;
 				/* If pos(x,y), c(x+1,y) then rev will be rev(x-1,y).
 				 * Similar in reverse for the rest of them.
@@ -112,31 +117,59 @@ public class Robot {
 		System.out.println(this.map);
 	}
 
-	private boolean smellSwamp(Coord pos) {
+	/* The smell has intensities, so it can differentiate
+	 * between a lower number of swamps and a higher one.
+	 */
+	private int smellSwamps(Coord pos) {
+		int nrSwamps = 0;
+
 		List<Coord> moves = this.grid.getAllMoves(pos);
 		for (Coord c : moves)
 			if (this.grid.isSwamp(c))
-				return true;
-		return false;
+				nrSwamps++;
+		return nrSwamps;
 	}
 
-	/* Check the map over what we've discovered. */
-	private void detectSwamp(Coord pos) {
+	/* Check the map over what we've discovered.
+	 * Returns true if we could not find all the swamps
+	 * and we're still uncertain where it might be
+	 * (so if the next move is risky or not)
+	 */
+	private boolean checkSwamps(Coord pos) {
+		/* A list of all possible moves. */
 		List<Coord> moves = this.grid.getAllMoves(pos);
+		/* The number of swamps detected through smelling. */
+		int nrSwamps = smellSwamps(pos);
 
-		int swampPossibilities = 0;
-		Coord swampCoord = null;
+		/* Check how many swamps we've identified. */
+		int foundSwamps = 0;
 		for (Coord c : moves)
-			if (this.map.isUnknown(c) || this.map.isSwamp(c)) {
-				swampPossibilities++;
-				swampCoord = c;
+			if (this.map.isSwamp(c))
+				foundSwamps++;
+
+		/* If no more unidentified swamps exist, we can proceed
+		 * with our exploration.
+		 */
+		if (foundSwamps == nrSwamps)
+			return true;
+
+		/* If we've got one unknown swamp and one unknown cell in total,
+		 * than that's a swamp.
+		 * Else we can't say a thing, it's risky.
+		 */
+		int unknown = 0;
+		Coord unknownCoord = null;
+		for (Coord c : moves)
+			if (this.map.isUnknown(c)) {
+				unknown++;
+				unknownCoord = c;
 			}
 
-		/* If we've know all but one coord we can deduce that that
-		 * one is a swamp, because we can feel the smell of a swamp
-		 * near this position.
-		 */
-		if (swampPossibilities == 1)
-			setTypeAndPrintMap(this.map, swampCoord, Grid.SWAMP);
+		if (unknown > 1)
+			return false;
+		/* The unknown is a swamp. */
+		if (unknown == 1)
+			setTypeAndPrintMap(this.map, unknownCoord, Grid.SWAMP);
+		return true;
 	}
 }
