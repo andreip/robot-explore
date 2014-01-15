@@ -1,0 +1,58 @@
+Petre Andrei, 342 C3
+
+== Harta ==
+
+Harta este citita din fisier din folder-ul maps/, trebuie data la intrarea
+fisierului Main.
+
+Exemplu harta:
+        S 0 0 0 0 0
+        1 0 x 0 0 S
+        S 1 1 1 0 0
+
+Simboluri:
+ * x pozitia de start
+ * 0 pozitii free pe harta
+ * S mlastina pe harta (swamp)
+ * 1 zid pe harta
+ * ? stare de inceput a zonei necunoscute inca (doar la runtime)
+
+Harta incepe cu coordonate (0,0) si evolueaza in jos si la dreapta.
+
+        |----> (0,3) width
+        |
+        |
+        v
+        (3,0)
+        height
+
+== General ==
+
+Implementarea consta in a face parcurgeri DFS repetate, pana cand nu se mai
+pot obtine informatii noi de pe harta.
+
+Robotul nu cunoaste detalii precum "ce se afla pe harta", sau care este
+dimensiunea acestuia, el doar primeste o lista de mutari valide dpdv al
+hartii si acolo merge, incercand toate combinatiile.
+
+Am implementat si bonus, miros cu intensitate. Harta din maps/simple este
+un bun exemplu de ce cu miros se pot afla mai multe detalii despre harta.
+Pentru ca fara miros harta va ramane asa:
+
+S 0 0 0 0 0
+1 0 0 0 0 S
+? 1 1 1 ? ?
+
+iar cu miros:
+
+S 0 0 0 0 0
+1 0 0 0 0 S
+? 1 1 1 0 0
+
+Asta pentru ca atunci cand se afla in coordonatele (1, 4) se afla langa o mlastina,
+insa nu stie daca este singura mlastina (daca nu are intensitatea mirosului),
+si deci nu poate incerca sa exploreze (2, 4), pentru ca ar fi riscant. La miros
+insa poate, pentru ca a fost descoperita S (mlastina) pe alta cale, din pozitia (0, 5)
+prin eliminare, pentru ca simtea miros insa pozitia (0, 4) era cunoscuta ca nefiind
+mlastina.
+
