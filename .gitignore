@@ -1,0 +1,12 @@
+bin/
+classes/
+logs/
+
+*.class
+*.sw*
+*.pdf
+
+.settings/
+.classpath
+.project
+.DS_Store
