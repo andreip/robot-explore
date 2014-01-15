@@ -16,8 +16,30 @@ public class Robot {
 	}
 	
 	public Grid explore() {
+		Coord startPos = this.crtPos;
+
 		/* Set current position as explored and safe. */
 		this.map.setType(this.crtPos, Grid.FREE);
+
+		System.out.println(crtPos);
+		printMap();
+
+		boolean mapChanged = true;
+		while (mapChanged) {
+			/* Set the starting position and do DFS exploration. */
+			this.crtPos = startPos;
+			mapChanged = do_explore();
+			System.err.println(mapChanged);
+		}
+
+		return map;
+	}
+
+	public boolean do_explore() {
+		/* Keep a record of whether we discovered new fields on the map, so we
+		 * may know when to stop trying.
+		 */
+		boolean mapChanged = false;
 
 		/* Do a DFS exploration from the starting point and complete the map. */
 		Stack<Coord> moves = new Stack<>();
@@ -27,11 +49,9 @@ public class Robot {
 		while (!moves.isEmpty()) {
 			Coord pos = moves.pop();
 
-			printMap();
-
 			/* Check what we can observe from the current position (smell). */
 			if (smellSwamp(pos)) {
-				this.map.setType(pos, Grid.FREE);
+				mapChanged |= setTypeAndPrintMap(this.map, pos, Grid.FREE);
 				/* Try and deduce where the swamp is. We can do this only if
 				 * we know all the spots except the one with swamp.
 				 */
@@ -39,29 +59,55 @@ public class Robot {
 				continue;
 			}
 
-			/* If pos is not labeled as discovered we will go on and search
-			 * for his children too.
-			 */
-			if (!visited[pos.x][pos.y]) {
-				visited[pos.x][pos.y] = true; 
-				moves.addAll(this.map.getAllMoves(pos));
-			}
-
 			/* If we could not move to the new not-visited position,
 			 * this means that one is a wall.
 			 */
-			if (!this.grid.updateCurrentPos(pos))
-				this.map.setType(pos, Grid.WALL);
+			if (!this.updateCurrentPos(pos))
+				mapChanged |= setTypeAndPrintMap(this.map, pos, Grid.WALL);
 			else
-				this.map.setType(pos, Grid.FREE);
+				mapChanged |= setTypeAndPrintMap(this.map, pos, Grid.FREE);
+
+			/* If pos is not labeled as discovered we will go on and search
+			 * for his children too.
+			 * Or if the move is a backwards move, it's fine.
+			 */
+			visited[pos.x][pos.y] = true;
+			List<Coord> nextMoves = this.grid.getAllMoves(pos);
+			for (Coord c : nextMoves) {
+				/* Don't re-add visited positions. */
+				if (visited[c.x][c.y])
+					continue;
+				/* If pos(x,y), c(x+1,y) then rev will be rev(x-1,y).
+				 * Similar in reverse for the rest of them.
+				 */
+				moves.push(c);
+			}
 		}
 
-		return map;
+		return mapChanged;
+	}
+
+	/* Set type only if it's not already set and print map. */
+	private boolean setTypeAndPrintMap(Grid g, Coord pos, char type) {
+		if (g.getType(pos) == type)
+			return false;
+		g.setType(pos, type);
+		printMap();
+		return true;
+	}
+
+	/* The grid won't update the current position if that
+	 * position is a wall.
+	 */
+	private boolean updateCurrentPos(Coord newPos) {
+		if (this.grid.isWall(newPos))
+			return false;
+		this.crtPos = newPos;
+		return true;
 	}
 
 	private void printMap() {
 		System.out.println(this.map);
-		System.out.println("");
 	}
 
 	private boolean smellSwamp(Coord pos) {
@@ -79,16 +125,16 @@ public class Robot {
 		int unknown = moves.size();
 		Coord unknownCoord = null;
 		for (Coord c : moves)
-			if (this.map.isWall(c) || this.map.isFree(c))
-				unknown--;
-			else
+			if (this.map.isUnknown(c))
 				unknownCoord = c;
+			else
+				unknown--;
 
 		/* If we've know all but one coord we can deduce that that
 		 * one is a swamp, because we can feel the smell of a swamp
 		 * near this position.
 		 */
 		if (unknown == 1)
-			this.map.setType(unknownCoord, Grid.SWAMP);
+			setTypeAndPrintMap(this.map, unknownCoord, Grid.SWAMP);
 	}
 }

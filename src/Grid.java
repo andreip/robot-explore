@@ -35,16 +35,6 @@ public class Grid {
 		return this.crtPos;
 	}
 
-	/* The grid won't update the current position if that
-	 * position is a wall.
-	 */
-	public boolean updateCurrentPos(Coord newPos) {
-		if (isWall(newPos))
-			return false;
-		crtPos = newPos;
-		return true;
-	}
-
 	public Boolean isSwamp(int i, int j) {
 		return this.grid[i][j] == SWAMP;
 	}
@@ -66,8 +56,16 @@ public class Grid {
 		return this.isFree(c.x, c.y);
 	}
 
+	public Boolean isUnknown(Coord c) {
+		return this.grid[c.x][c.y] == UNKNOWN;
+	}
+
 	public void setType(Coord c, char type) {
 		grid[c.x][c.y] = type;
+	}
+
+	public char getType(Coord c) {
+		return grid[c.x][c.y];
 	}
 
 	/* Set every cell from grid. */
